@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
+import  Image  from 'next/image'
 
 const loginSchema = z.object({
     email: z.email('Invalid email address'),
@@ -71,6 +72,13 @@ export const LoginForm: React.FC = () => {
                                     type='button'
                                     disabled={form.formState.isSubmitting}
                                 >
+                                    <Image
+                                        width={24}
+                                        height={24}
+                                        src='/google.svg'
+                                        alt='Continue with Google'
+                                        className='w-5 h-5 mr-2'
+                                    />
                                     Continue with Google
                                 </Button>
                                   <Button
@@ -79,6 +87,13 @@ export const LoginForm: React.FC = () => {
                                     type='button'
                                     disabled={form.formState.isSubmitting}
                                 >
+                                    <Image
+                                        width={24}
+                                        height={24}
+                                        src='/github.svg'
+                                        alt='Continue with Github'
+                                        className='w-5 h-5 mr-2'
+                                    />
                                     Continue with Github
                                 </Button>
                             </div>
