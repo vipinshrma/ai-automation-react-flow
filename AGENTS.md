@@ -1,35 +1,33 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- The Next.js 15 App Router lives in `src/app`, with route groups like `(auth)` and `(dashboard)` plus API handlers in `src/app/api`.
-- Shared React primitives and Shadcn-inspired widgets reside in `src/components/ui`, while higher-level layouts sit alongside them (for example `src/components/app-sidebar.tsx`).
-- Feature code such as authentication flows is grouped inside `src/features`, and reusable logic is centralized under `src/hooks` and `src/lib`.
-- The tRPC layer (`src/trpc`) wires client and server helpers, and long-running or scheduled jobs live in `src/inngest`.
-- Database schema lives in `prisma/schema.prisma`; running Prisma generates the client into `src/generated/prisma`. Static assets belong in `public/`.
+- The App Router lives in `src/app` with route groups `(auth)` and `(dashboard)` plus API handlers in `src/app/api`.
+- Shared UI primitives stay in `src/components/ui`, and layout shells like `app-sidebar.tsx` sit alongside them.
+- Domain logic splits across `src/features`, reusable hooks, and utilities in `src/hooks` and `src/lib`, while background jobs run from `src/inngest`.
+- Prisma’s schema sits in `prisma/schema.prisma` and generates to `src/generated/prisma`; static assets belong in `public/`.
 
 ## Build, Test, and Development Commands
-- `npm run dev` — start the local development server on port 3000.
-- `npm run build` — create an optimized production build (runs type checks by default).
-- `npm run start` — serve the production build locally; run `npm run build` first.
-- `npx prisma generate` — regenerate the typed Prisma client after schema edits; pair with `npx prisma migrate dev --name <change>` when evolving the database.
+- `npm run dev` — launch the development server on port 3000.
+- `npm run build` — produce the production bundle with type checks.
+- `npm run start` — serve the production bundle; run after `npm run build`.
+- `npx prisma generate` — refresh the Prisma client after schema changes (pair with `npx prisma migrate dev --name <change>` when altering tables).
 
 ## Coding Style & Naming Conventions
-- Write modern TypeScript React components with functional patterns; prefer server components unless client hooks (React Query, forms, etc.) are required.
-- Keep files kebab-cased (`app-sidebar.tsx`, `use-mobile.ts`); export a named component per file and colocate supporting helpers.
-- Tailwind CSS v4 backs styling via `globals.css`; favor utility-first classes with shared variants built via `class-variance-authority`.
-- Run Prettier-equivalent formatting in your editor (2-space indentation) and ensure imports stay sorted logically (framework → internal modules).
+- Author modern TypeScript React components using functional patterns; default to server components unless client hooks (React Query, forms) require otherwise.
+- Keep filenames kebab-cased (`app-sidebar.tsx`, `use-mobile.ts`) and export a single component per file with colocated helpers.
+- Tailwind CSS v4 powers styling via `globals.css`; prefer utility-first classes and compose variants with `class-variance-authority` when sharing patterns.
+- Group imports as framework → third-party → internal and rely on editor formatting with 2-space indentation.
 
 ## Testing Guidelines
-- Add component smoke tests with React Testing Library colocated as `*.test.tsx` next to the unit under test; mirror feature folders when possible.
-- Exercise data workflows (tRPC procedures, Inngest functions) with integration tests that seed Prisma against a disposable database.
-- Target meaningful coverage on new code paths and document any gaps directly in the PR description when exceptions are unavoidable.
+- Add React Testing Library smoke tests as `*.test.tsx` colocated with the unit under test.
+- Exercise tRPC procedures and Inngest workflows with integration tests that seed Prisma against a disposable database or mocked adapter.
+- Call out any temporary coverage gaps directly in the pull request description.
 
 ## Commit & Pull Request Guidelines
-- Follow the existing short, lowercase style (`update: add ai providers`); start with an action verb and keep the scope focused.
-- Each PR should include: a concise summary, linked issue or task id, test evidence (`npm run build` or screenshots for UI changes), and any database migration notes.
-- Request review from a domain owner (feature lead, platform lead) and confirm environments updated (`DATABASE_URL`, AI provider keys, Inngest credentials) before merging.
+- Mirror the existing concise, lowercase style (`update: add ai providers`): action verb, short scope, one responsibility.
+- Include in every PR: a summary, linked issue or ticket, test evidence (`npm run build`, screenshots for UI), and notes on schema or env changes.
+- Request review from the relevant feature owner and confirm required AI provider keys are present before merging.
 
 ## Security & Configuration Tips
-- Keep secrets in `.env` files; never commit API keys for OpenAI, Anthropic, Google, or Prisma connections.
-- Rotate the `DATABASE_URL` credentials and regenerate Prisma clients immediately when connection details change.
-- Review `src/lib/auth.ts` and `src/inngest/functions.ts` for env dependencies whenever adding new agents or background jobs.
+- Keep credentials in `.env`; never commit secrets for Prisma, OpenAI, Anthropic, or Google providers.
+- Rotate `DATABASE_URL` promptly, rerun `npx prisma generate`, and audit auth or Inngest modules when adding new agents or background workers.
