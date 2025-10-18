@@ -2,7 +2,9 @@ import { baseProcedure, createTRPCRouter, protectedProcedure } from '../init';
 import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import prisma from '@/lib/db';
+import { workflowsRouter } from '@/features/workflows/servers/router';
 export const appRouter = createTRPCRouter({
+  workflows:workflowsRouter,
   getUsers: protectedProcedure.query(({ ctx }) => {
     const userId = ctx.auth.user.id
     return prisma.user.findMany({
