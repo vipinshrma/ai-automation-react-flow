@@ -125,7 +125,7 @@ export const WorkflowItem = ({ data }: { data: Workflow }) => {
         removeWorkflow({ id: data.id })
     }
     return <EntityItem
-        href={`/workflow/${data.id}`}
+        href={`/workflows/${data.id}`}
         title={data.name}
         subtitle={
             <>
