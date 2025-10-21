@@ -17,7 +17,7 @@ export function WorkflowNode({ showToolbar = false, onSettings, onDelete, name, 
     return (
         <>
             {
-                showToolbar && (
+                showToolbar && 
                     <NodeToolbar
                     >
                         <Button size='sm' variant='ghost' onClick={onSettings}>
@@ -27,7 +27,7 @@ export function WorkflowNode({ showToolbar = false, onSettings, onDelete, name, 
                             <TrashIcon className="size-4" />
                         </Button>
                     </NodeToolbar>
-                )
+                
             }
             {children}
             {name && (
