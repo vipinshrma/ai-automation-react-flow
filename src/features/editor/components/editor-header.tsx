@@ -4,23 +4,33 @@ import { Button } from "@/components/ui/button"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { SaveIcon, Loader2 } from "lucide-react"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import { useSuspenseWorkflow, useUpdateWorkflowName } from "@/features/workflows/hooks/use-workflow"
+import { useSuspenseWorkflow, useUpdateWorkflow, useUpdateWorkflowName } from "@/features/workflows/hooks/use-workflow"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useState } from "react"
+import { useAtomValue } from 'jotai'
+import { editorAtom } from "../store/atom"
 
-export const EditorSaveButton = ({ onSave, isSaving }: { onSave?: () => void, isSaving?: boolean }) => {
+export const EditorSaveButton = ({ onSave, isSaving, workflowId }: { onSave?: () => void, isSaving?: boolean, workflowId: string }) => {
+    const editor = useAtomValue(editorAtom)
+    const saveWorkflow = useUpdateWorkflow()
+
     const handleSave = () => {
-        if (onSave) {
-            onSave()
-        }
+        if (!editor) return;
+        const nodes = editor.getNodes()
+        const edges = editor.getEdges()
+        saveWorkflow.mutate({
+            id: workflowId,
+            nodes,
+            edges
+        })
     }
 
     return <div className="ml-auto">
         <Button
             size='sm'
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || saveWorkflow.isPending}
         >
             <SaveIcon className="size-4" />
             {isSaving ? 'Saving...' : 'Save'}
@@ -55,7 +65,7 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
             updateWorkflow.mutate({ id: workflowId, name: name.trim() })
         }
     }
-    
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Escape') {
             setName(workflow?.name || '')
@@ -117,7 +127,7 @@ export const EditorHeader = ({ workflowId }: { workflowId: string }) => {
                 className="flex flex-row items-center justify-between gap-x-4 w-full"
             >
                 <EditorBreadCrumbs workflowId={workflowId} />
-                <EditorSaveButton />
+                <EditorSaveButton workflowId={workflowId} />
             </div>
         </header>
     )
