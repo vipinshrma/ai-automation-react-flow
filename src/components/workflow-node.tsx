@@ -17,17 +17,17 @@ export function WorkflowNode({ showToolbar = false, onSettings, onDelete, name, 
     return (
         <>
             {
-                showToolbar && 
-                    <NodeToolbar
-                    >
-                        <Button size='sm' variant='ghost' onClick={onSettings}>
-                            <SettingsIcon className="size-4" />
-                        </Button>
-                        <Button size='sm' variant='ghost' onClick={onDelete}>
-                            <TrashIcon className="size-4" />
-                        </Button>
-                    </NodeToolbar>
-                
+                showToolbar &&
+                <NodeToolbar
+                >
+                    <Button size='sm' variant='ghost' onClick={onSettings}>
+                        <SettingsIcon className="size-4" />
+                    </Button>
+                    <Button size='sm' variant='ghost' onClick={onDelete}>
+                        <TrashIcon className="size-4" />
+                    </Button>
+                </NodeToolbar>
+
             }
             {children}
             {name && (
