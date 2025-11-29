@@ -32,6 +32,7 @@ export const BaseExecutionNode = memo(({ name, description, children, Icon, onSe
             return currentEdge.filter(edge => edge.source !== id && edge.target !== id)
         })
     }
+    console.log("status",status)
     return (
         <WorkflowNode
             name={name}

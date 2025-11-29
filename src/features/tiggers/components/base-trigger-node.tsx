@@ -57,8 +57,6 @@ export const BaseTriggerNode = memo(({ name, description, children, Icon, onSett
                     </BaseNodeContent>
                 </BaseNode>
             </NodeStatusIndicator>
-
-
         </WorkflowNode>
     )
 })

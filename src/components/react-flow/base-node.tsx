@@ -1,16 +1,16 @@
 import { cn } from "@/lib/utils";
 import { forwardRef, type HTMLAttributes } from "react";
 import type { NodeStatus } from "./node-status-indicator";
-import {  XCircleIcon } from "lucide-react";
+import { XCircleIcon } from "lucide-react";
 
-interface BaseNodeProps extends HTMLAttributes<HTMLDivElement>{
-  status?:NodeStatus
+interface BaseNodeProps extends HTMLAttributes<HTMLDivElement> {
+  status?: NodeStatus
 }
 
 export const BaseNode = forwardRef<
   HTMLDivElement,
   BaseNodeProps
->(({ className, status, ...props }, ref) => (
+>(({ className, children, status, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
@@ -21,10 +21,10 @@ export const BaseNode = forwardRef<
     tabIndex={0}
     {...props}
   >
-    {status === 'error' && <XCircleIcon className="absolute right-0.5 bottom-0.5 size-2 text-red-700 stroke-3"/>}
-    {status === 'loading' && <XCircleIcon className="absolute -right-0.5 -bottom-0.5 size-2 text-blue-700 stroke-3 animate-spin"/>}
-    {status === 'success' && <XCircleIcon className="absolute right-0.5 bottom-0.5 size-2 text-green-700 stroke-3"/>}
-
+    {status === 'error' && <XCircleIcon className="absolute right-0.5 bottom-0.5 size-2 text-red-700 stroke-3" />}
+    {status === 'loading' && <XCircleIcon className="absolute -right-0.5 -bottom-0.5 size-2 text-blue-700 stroke-3 animate-spin" />}
+    {status === 'success' && <XCircleIcon className="absolute right-0.5 bottom-0.5 size-2 text-green-700 stroke-3" />}
+    {children}
   </div>
 ));
 BaseNode.displayName = "BaseNode";
