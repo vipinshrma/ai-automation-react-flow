@@ -15,23 +15,23 @@ export const formSchema = z.object({
     body: z.string().optional()
 })
 
+export type HttpRequestFormValues = z.infer<typeof formSchema>
+
 interface Props {
     open: boolean;
     onOpenChange: (open: boolean) => void
-    onSubmit: (values: z.infer<typeof formSchema>) => void;
-    defaultEndpoint?: string;
-    defaultMethod?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-    defaultBody?: string
+    onSubmit: (values: HttpRequestFormValues) => void;
+    defaultValues?: Partial<HttpRequestFormValues>
 
 }
 
-export const HttpRequestDialog = ({ open, onOpenChange, onSubmit, defaultEndpoint, defaultMethod, defaultBody }: Props) => {
+export const HttpRequestDialog = ({ open, onOpenChange, onSubmit, defaultValues = {} }: Props) => {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            endPoint: defaultEndpoint,
-            method: defaultMethod,
-            body: defaultBody
+            endPoint: defaultValues.endPoint,
+            method: defaultValues.method,
+            body: defaultValues.body
         }
     })
 
@@ -42,15 +42,15 @@ export const HttpRequestDialog = ({ open, onOpenChange, onSubmit, defaultEndpoin
         onSubmit(values)
         onOpenChange(false)
     }
-    useEffect(()=>{
-        if(open){
+    useEffect(() => {
+        if (open) {
             form.reset({
-                endPoint: defaultEndpoint,
-                method: defaultMethod,
-                body: defaultBody
+                endPoint: defaultValues.endPoint,
+                method: defaultValues.method,
+                body: defaultValues.body
             })
         }
-    },[open,defaultEndpoint,defaultMethod,defaultBody])
+    }, [open, defaultValues])
     return (
         <Dialog
             open={open}
@@ -99,47 +99,47 @@ export const HttpRequestDialog = ({ open, onOpenChange, onSubmit, defaultEndpoin
                                 )
                             }}
                         />
-                         <FormField 
-                        control={form.control}
-                        name="endPoint"
-                        render={({field})=>{
-                            return (
-                                <FormItem>
-                                    <FormLabel>Endpoint URL</FormLabel>
-                                    <FormControl>
-                                        <Input 
-                                        placeholder="http://api.example.com/users/"
-                                        {...field}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                       Static URL or use {"{{variables}}"} for simple values or {"{{ JSON variables}}"} to stringify objects
-                                    </FormDescription>
-                                </FormItem>
-                            )
-                        }}
-                        />
-                        {
-                            showBodyField &&  <FormField 
+                        <FormField
                             control={form.control}
-                            name="body"
-                            render={({field})=>{
+                            name="endPoint"
+                            render={({ field }) => {
                                 return (
                                     <FormItem>
-                                        <FormLabel>Request Body</FormLabel>
+                                        <FormLabel>Endpoint URL</FormLabel>
                                         <FormControl>
-                                            <Textarea
-                                            placeholder="http://api.example.com/users/"
-                                            className="min-h-[120px] font-mono text-sm"
-                                            {...field}
+                                            <Input
+                                                placeholder="http://api.example.com/users/"
+                                                {...field}
                                             />
                                         </FormControl>
                                         <FormDescription>
-                                         JSON with template variables. Use {"{{variables}}"} for simple values or {"{{ JSON variables}}"} to stringify objects
+                                            Static URL or use {"{{variables}}"} for simple values or {"{{ JSON variables}}"} to stringify objects
                                         </FormDescription>
                                     </FormItem>
                                 )
                             }}
+                        />
+                        {
+                            showBodyField && <FormField
+                                control={form.control}
+                                name="body"
+                                render={({ field }) => {
+                                    return (
+                                        <FormItem>
+                                            <FormLabel>Request Body</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="http://api.example.com/users/"
+                                                    className="min-h-[120px] font-mono text-sm"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>
+                                                JSON with template variables. Use {"{{variables}}"} for simple values or {"{{ JSON variables}}"} to stringify objects
+                                            </FormDescription>
+                                        </FormItem>
+                                    )
+                                }}
                             />
                         }
                         <DialogFooter className="mt-4">

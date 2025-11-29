@@ -2,13 +2,12 @@ import { GlobeIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { BaseExecutionNode } from "../base-execution-model";
 import { Node, NodeProps, useReactFlow } from '@xyflow/react'
-import { formSchema, HttpRequestDialog } from "./dialog";
-import z from "zod";
+import { HttpRequestDialog, HttpRequestFormValues } from "./dialog";
+
 type HTTPRequestNodeData = {
     endPoint?: string;
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: string;
-    [key: string]: unknown
 }
 
 type HTTPRequestNodeType = Node<HTTPRequestNodeData>
@@ -20,7 +19,7 @@ export const HttpRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
     const handleOpenSettings = () => setDialogOpen(true)
     const {setNodes,setEdges} = useReactFlow()
 
-    const onSubmit = (values:z.infer<typeof formSchema>)=>{
+    const onSubmit = (values:HttpRequestFormValues)=>{
         setNodes((nodes=>{
             return nodes.map((node=>{
                 if(node.id===props.id){
@@ -34,7 +33,7 @@ export const HttpRequestNode = memo((props: NodeProps<HTTPRequestNodeType>) => {
     const nodeStatus = 'initial'
     return (
         <>
-            <HttpRequestDialog onSubmit={onSubmit} defaultBody={nodeData.body} defaultMethod={nodeData.method} defaultEndpoint={nodeData.endPoint} open={dialogOpen} onOpenChange={setDialogOpen} />
+            <HttpRequestDialog onSubmit={onSubmit} defaultValues={nodeData} open={dialogOpen} onOpenChange={setDialogOpen} />
             <BaseExecutionNode {...props} id={props.id} Icon={GlobeIcon} name="HTTP Request" description={description} onSettings={handleOpenSettings} onDoubleClick={handleOpenSettings} status={nodeStatus} />
         </>
     )
