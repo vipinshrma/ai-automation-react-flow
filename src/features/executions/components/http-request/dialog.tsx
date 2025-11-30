@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,8 @@ import z from "zod";
 export const formSchema = z.object({
     endPoint: z.url({ message: "Invalid URL" }),
     method: z.enum(["GET", "POST", "PUT", "DELETE", "PATCH"]),
-    body: z.string().optional()
+    body: z.string().optional(),
+    variableName: z.string().min(1, { message: 'Variable name is required' }).regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { message: 'Invalid variable name' })
 })
 
 export type HttpRequestFormValues = z.infer<typeof formSchema>
@@ -31,12 +32,14 @@ export const HttpRequestDialog = ({ open, onOpenChange, onSubmit, defaultValues 
         defaultValues: {
             endPoint: defaultValues.endPoint,
             method: defaultValues.method,
-            body: defaultValues.body
+            body: defaultValues.body,
+            variableName: defaultValues.variableName
         }
     })
 
     const watchMethod = form.watch('method')
     const showBodyField = ['POST', 'PUT', 'PATCH'].includes(watchMethod)
+    const watchVariableName = form.watch('variableName') || 'my_variable_name'
 
     const handleSubmit = (values: z.infer<typeof formSchema>) => {
         onSubmit(values)
@@ -47,7 +50,8 @@ export const HttpRequestDialog = ({ open, onOpenChange, onSubmit, defaultValues 
             form.reset({
                 endPoint: defaultValues.endPoint,
                 method: defaultValues.method,
-                body: defaultValues.body
+                body: defaultValues.body,
+                variableName: defaultValues.variableName
             })
         }
     }, [open, defaultValues])
@@ -66,7 +70,30 @@ export const HttpRequestDialog = ({ open, onOpenChange, onSubmit, defaultValues 
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 mt-4">
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 mt-4 ">
+                        <FormField
+                            control={form.control}
+                            name="variableName"
+                            render={({ field }) => {
+                                return (
+                                    <FormItem>
+                                        <FormLabel>Variable Name</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="my_variable_name"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>
+                                            Use this name to reference the response in the other nodes:{" "} {"{{"}{watchVariableName}{".httpResponse.data}}"}
+                                        </FormDescription>
+                                        {form.formState.errors.variableName && (
+                                            <FormMessage>{form.formState.errors.variableName.message}</FormMessage>
+                                        )}
+                                    </FormItem>
+                                )
+                            }}
+                        />
                         <FormField
                             control={form.control}
                             name="method"

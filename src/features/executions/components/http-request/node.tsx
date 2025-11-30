@@ -8,6 +8,7 @@ type HTTPRequestNodeData = {
     endPoint?: string;
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: string;
+    variableName?:string
 }
 
 type HTTPRequestNodeType = Node<HTTPRequestNodeData>

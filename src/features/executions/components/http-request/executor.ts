@@ -5,6 +5,7 @@ type HTTPRequestData = {
     endPoint?: string;
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: string;
+    variableName?: string
 }
 
 export const httpRequestExecutor: NodeExecutor<HTTPRequestData> = async ({ data, nodeId, context, step }) => {
@@ -12,12 +13,19 @@ export const httpRequestExecutor: NodeExecutor<HTTPRequestData> = async ({ data,
         //TODO: publish error state for http Request
         throw new NonRetriableError('End point is required for HTTP Request')
     }
+    if (!data.variableName) {
+        //TODO: publish error state for http Request
+        throw new NonRetriableError('Variable name is required for HTTP Request')
+    }
     const result = await step.run('http-request', async () => {
         const method = data.method || 'GET';
         const endPoint = data.endPoint!;
         const options: KyOptions = { method }
         if (['POST', 'PUT', 'PATCH'].includes(method)) {
             options.body = data.body
+            options.headers = {
+                'Content-Type': 'application/json',
+            }
         }
         const response = await ky(endPoint, options)
         const contentType = response.headers.get('content-type');
@@ -26,6 +34,18 @@ export const httpRequestExecutor: NodeExecutor<HTTPRequestData> = async ({ data,
             responseData = await response.json().catch(() => response.text)
         } else {
             responseData = await response.text()
+        }
+        if (data.variableName) {
+            return {
+                ...context,
+                [data.variableName]: {
+                    httpResponse: {
+                        status: response.status,
+                        statusText: response.statusText,
+                        data: responseData
+                    }
+                }
+            }
         }
         return {
             ...context,
