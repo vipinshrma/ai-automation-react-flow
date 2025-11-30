@@ -1,12 +1,19 @@
 import type { NodeExecutor } from "@/features/executions/types";
 import { NonRetriableError } from "inngest";
 import ky, { type Options as KyOptions } from 'ky';
+import Handlebars from 'handlebars';
 type HTTPRequestData = {
-    endPoint?: string;
-    method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+    variableName: string
+    endPoint: string;
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
     body?: string;
-    variableName?: string
+
 }
+
+Handlebars.registerHelper('json', (context: any) => {
+    const stringified = JSON.stringify(context,null,2);
+    return new Handlebars.SafeString(stringified);
+});
 
 export const httpRequestExecutor: NodeExecutor<HTTPRequestData> = async ({ data, nodeId, context, step }) => {
     if (!data.endPoint) {
@@ -17,12 +24,17 @@ export const httpRequestExecutor: NodeExecutor<HTTPRequestData> = async ({ data,
         //TODO: publish error state for http Request
         throw new NonRetriableError('Variable name is required for HTTP Request')
     }
+    if(!data.method){
+        //TODO: publish error state for http Request
+        throw new NonRetriableError('Method is required for HTTP Request')
+    }
     const result = await step.run('http-request', async () => {
-        const method = data.method || 'GET';
-        const endPoint = data.endPoint!;
+        const method = data.method;
+        const endPoint = Handlebars.compile(data.endPoint)(context);
         const options: KyOptions = { method }
         if (['POST', 'PUT', 'PATCH'].includes(method)) {
-            options.body = data.body
+            const body = Handlebars.compile(data.body || "{}")(context);
+            options.body = body;
             options.headers = {
                 'Content-Type': 'application/json',
             }
@@ -35,24 +47,14 @@ export const httpRequestExecutor: NodeExecutor<HTTPRequestData> = async ({ data,
         } else {
             responseData = await response.text()
         }
-        if (data.variableName) {
-            return {
-                ...context,
-                [data.variableName]: {
-                    httpResponse: {
-                        status: response.status,
-                        statusText: response.statusText,
-                        data: responseData
-                    }
-                }
-            }
-        }
         return {
             ...context,
-            httpResponse: {
-                status: response.status,
-                statusText: response.statusText,
-                data: responseData
+            [data.variableName]: {
+                httpResponse: {
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: responseData
+                }
             }
         }
     })
